@@ -1,1052 +1,1747 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Majestic Nickel Tracker</title>
-  <meta
-    name="description"
-    content="Majestic Nickel Tracker — a desktop application for tracking nickel mining statistics and synchronizing data with Google Sheets."
-  >
-
-  <meta name="theme-color" content="#080b12">
-
-  <style>
-    :root {
-      --bg: #080b12;
-      --bg-soft: #0d111a;
-      --card: rgba(18, 23, 34, 0.72);
-      --card-solid: #121722;
-      --border: rgba(255, 255, 255, 0.09);
-      --text: #f4f7fb;
-      --muted: #9aa6b8;
-      --accent: #7c5cff;
-      --accent-2: #26d0ce;
-      --green: #55d68a;
-      --shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
-      --radius: 24px;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family:
-        Inter, ui-sans-serif, system-ui, -apple-system,
-        BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at 80% 10%, rgba(124, 92, 255, 0.18), transparent 30%),
-        radial-gradient(circle at 10% 30%, rgba(38, 208, 206, 0.08), transparent 30%),
-        var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .container {
-      width: min(1120px, calc(100% - 40px));
-      margin: 0 auto;
-    }
-
-    /* NAVIGATION */
-
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 100;
-      background: rgba(8, 11, 18, 0.72);
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .nav-inner {
-      height: 72px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      font-weight: 800;
-      letter-spacing: -0.4px;
-    }
-
-    .logo-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      box-shadow: 0 8px 30px rgba(124, 92, 255, 0.3);
-      font-size: 15px;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 28px;
-      align-items: center;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .nav-links a {
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover {
-      color: var(--text);
-    }
-
-    .nav-button {
-      padding: 10px 17px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      color: var(--text) !important;
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    /* HERO */
-
-    .hero {
-      min-height: 820px;
-      padding-top: 170px;
-      display: flex;
-      align-items: center;
-      position: relative;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      width: 600px;
-      height: 600px;
-      left: 50%;
-      top: 50px;
-      transform: translateX(-50%);
-      background: radial-gradient(
-        circle,
-        rgba(124, 92, 255, 0.12),
-        transparent 65%
-      );
-      pointer-events: none;
-    }
-
-    .hero-content {
-      text-align: center;
-      max-width: 850px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border: 1px solid rgba(124, 92, 255, 0.3);
-      background: rgba(124, 92, 255, 0.08);
-      border-radius: 999px;
-      color: #c8bdff;
-      font-size: 13px;
-      margin-bottom: 25px;
-    }
-
-    .badge-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--green);
-      border-radius: 50%;
-      box-shadow: 0 0 12px var(--green);
-    }
-
-    h1 {
-      font-size: clamp(48px, 8vw, 88px);
-      line-height: 0.98;
-      letter-spacing: -4px;
-      margin-bottom: 27px;
-      font-weight: 850;
-    }
-
-    .gradient-text {
-      background: linear-gradient(
-        120deg,
-        #ffffff 20%,
-        #b9b0ff 55%,
-        #65e4e0
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero p {
-      max-width: 650px;
-      margin: 0 auto;
-      color: var(--muted);
-      font-size: 18px;
-    }
-
-    .hero-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 35px;
-      flex-wrap: wrap;
-    }
-
-    .button {
-      padding: 14px 22px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 14px;
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-    }
-
-    .button:hover {
-      transform: translateY(-2px);
-    }
-
-    .button-primary {
-      background: linear-gradient(135deg, var(--accent), #9b78ff);
-      box-shadow: 0 12px 35px rgba(124, 92, 255, 0.25);
-    }
-
-    .button-secondary {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border);
-    }
-
-    /* DASHBOARD PREVIEW */
-
-    .dashboard {
-      margin-top: 80px;
-      position: relative;
-    }
-
-    .dashboard-window {
-      max-width: 950px;
-      margin: 0 auto;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      background: rgba(13, 17, 26, 0.9);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      transform: perspective(1200px) rotateX(2deg);
-    }
-
-    .window-bar {
-      height: 46px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 7px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .window-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #515967;
-    }
-
-    .window-title {
-      margin-left: 10px;
-      color: #778295;
-      font-size: 12px;
-    }
-
-    .dashboard-content {
-      padding: 25px;
-      display: grid;
-      grid-template-columns: 1fr 1.6fr;
-      gap: 18px;
-    }
-
-    .stats {
-      display: grid;
-      gap: 14px;
-    }
-
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 18px;
-      text-align: left;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 5px;
-    }
-
-    .stat-value {
-      font-size: 25px;
-      font-weight: 800;
-    }
-
-    .stat-change {
-      color: var(--green);
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    .chart-card {
-      min-height: 285px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 20px;
-      text-align: left;
-    }
-
-    .chart-title {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .chart-subtitle {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .chart {
-      height: 185px;
-      margin-top: 20px;
-      position: relative;
-      overflow: hidden;
-      border-radius: 10px;
-      background:
-        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
-      background-size: 45px 45px;
-    }
-
-    .chart svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .chart-line {
-      fill: none;
-      stroke: url(#chartGradient);
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    /* FEATURES */
-
-    section {
-      padding: 110px 0;
-    }
-
-    .section-heading {
-      max-width: 650px;
-      margin-bottom: 50px;
-    }
-
-    .section-label {
-      color: #9c8aff;
-      text-transform: uppercase;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-    }
-
-    h2 {
-      font-size: clamp(34px, 5vw, 54px);
-      line-height: 1.05;
-      letter-spacing: -2px;
-    }
-
-    .section-heading p {
-      color: var(--muted);
-      margin-top: 17px;
-      font-size: 17px;
-    }
-
-    .features {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
-
-    .feature {
-      padding: 28px;
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: linear-gradient(
-        145deg,
-        rgba(255,255,255,0.055),
-        rgba(255,255,255,0.018)
-      );
-      transition:
-        transform 0.25s ease,
-        border-color 0.25s ease;
-    }
-
-    .feature:hover {
-      transform: translateY(-5px);
-      border-color: rgba(124, 92, 255, 0.4);
-    }
-
-    .feature-icon {
-      width: 45px;
-      height: 45px;
-      display: grid;
-      place-items: center;
-      border-radius: 13px;
-      background: rgba(124, 92, 255, 0.12);
-      margin-bottom: 22px;
-      font-size: 20px;
-    }
-
-    .feature h3 {
-      font-size: 18px;
-      margin-bottom: 9px;
-    }
-
-    .feature p {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    /* SYNC */
-
-    .sync {
-      padding-top: 40px;
-    }
-
-    .sync-box {
-      border-radius: 30px;
-      border: 1px solid var(--border);
-      background:
-        radial-gradient(
-          circle at 85% 20%,
-          rgba(38, 208, 206, 0.12),
-          transparent 30%
-        ),
-        linear-gradient(135deg, #101622, #0c1018);
-      padding: 65px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 50px;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .sync-text p {
-      color: var(--muted);
-      margin-top: 18px;
-      max-width: 480px;
-    }
-
-    .sync-visual {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 220px;
-      position: relative;
-    }
-
-    .sync-card {
-      padding: 25px;
-      width: 230px;
-      border-radius: 20px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-    }
-
-    .sync-card strong {
-      display: block;
-      margin-top: 10px;
-    }
-
-    .sync-arrow {
-      margin: 0 18px;
-      color: var(--accent-2);
-      font-size: 25px;
-    }
-
-    /* CTA */
-
-    .cta {
-      text-align: center;
-      padding: 130px 0;
-    }
-
-    .cta p {
-      color: var(--muted);
-      max-width: 550px;
-      margin: 18px auto 30px;
-    }
-
-    /* FOOTER */
-
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 35px 0;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .footer-inner {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .footer-links a:hover {
-      color: var(--text);
-    }
-
-    /* ANIMATION */
-
-    .fade-up {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 0.8s ease forwards;
-    }
-
-    .delay-1 {
-      animation-delay: 0.1s;
-    }
-
-    .delay-2 {
-      animation-delay: 0.2s;
-    }
-
-    .delay-3 {
-      animation-delay: 0.3s;
-    }
-
-    @keyframes fadeUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* MOBILE */
-
-    @media (max-width: 800px) {
-      .nav-links {
-        display: none;
-      }
-
-      .hero {
-        min-height: auto;
-        padding-top: 135px;
-      }
-
-      h1 {
-        letter-spacing: -2.5px;
-      }
-
-      .hero p {
-        font-size: 16px;
-      }
-
-      .dashboard-content {
-        grid-template-columns: 1fr;
-      }
-
-      .features {
-        grid-template-columns: 1fr;
-      }
-
-      .sync-box {
-        grid-template-columns: 1fr;
-        padding: 35px 25px;
-        gap: 20px;
-      }
-
-      .sync-visual {
-        min-height: 170px;
-      }
-
-      section {
-        padding: 80px 0;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        width: min(100% - 28px, 1120px);
-      }
-
-      .logo span {
-        font-size: 14px;
-      }
-
-      .hero-buttons {
-        flex-direction: column;
-      }
-
-      .button {
-        width: 100%;
-      }
-
-      .dashboard {
-        margin-top: 55px;
-      }
-
-      .dashboard-window {
-        border-radius: 15px;
-      }
-
-      .dashboard-content {
-        padding: 13px;
-      }
-
-      .chart-card {
-        min-height: 240px;
-      }
-
-      .chart {
-        height: 145px;
-      }
-
-      .sync-arrow {
-        transform: rotate(90deg);
-        margin: 12px 0;
-      }
-
-      .sync-visual {
-        flex-direction: column;
-      }
-
-      .sync-card {
-        width: 210px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Majestic Nickel Tracker</title>
+
+    <meta
+        name="description"
+        content="Majestic Nickel Tracker — приложение для отслеживания статистики добычи никеля."
+    >
+
+    <meta name="theme-color" content="#070910">
+
+    <style>
+        :root {
+            --bg: #070910;
+            --bg-soft: #0b0e17;
+            --card: rgba(18, 22, 34, 0.72);
+            --card-solid: #111520;
+
+            --text: #f5f7fb;
+            --muted: #929aaa;
+            --muted-dark: #626b7e;
+
+            --purple: #8b7cff;
+            --purple-light: #b7afff;
+            --cyan: #59ded8;
+            --green: #65df9d;
+
+            --border: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.13);
+
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            color: var(--text);
+            background:
+                radial-gradient(
+                    circle at 80% -10%,
+                    rgba(139, 124, 255, 0.18),
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 0% 35%,
+                    rgba(89, 222, 216, 0.06),
+                    transparent 28%
+                ),
+                linear-gradient(
+                    180deg,
+                    #070910 0%,
+                    #080b12 100%
+                );
+
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: 0.18;
+
+            background-image:
+                linear-gradient(
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 60px 60px;
+
+            mask-image: linear-gradient(
+                to bottom,
+                black,
+                transparent 85%
+            );
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            width: min(1160px, calc(100% - 40px));
+            margin: 0 auto;
+        }
+
+        /* =========================
+           НАВИГАЦИЯ
+        ========================= */
+
+        .navbar {
+            position: fixed;
+            z-index: 1000;
+
+            top: 0;
+            left: 0;
+            width: 100%;
+
+            border-bottom: 1px solid rgba(255,255,255,0.055);
+
+            background: rgba(7,9,16,0.72);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .nav {
+            height: 74px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 11px;
+
+            font-size: 12px;
+            font-weight: 900;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--purple),
+                    var(--cyan)
+                );
+
+            box-shadow:
+                0 10px 35px rgba(139,124,255,0.28);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .nav-links a {
+            transition: color 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-button {
+            padding: 9px 15px;
+
+            border: 1px solid var(--border);
+            border-radius: 10px;
+
+            color: var(--text) !important;
+
+            background: rgba(255,255,255,0.045);
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+
+            padding-top: 165px;
+            padding-bottom: 100px;
+
+            text-align: center;
+        }
+
+        .hero-glow {
+            position: absolute;
+
+            width: 700px;
+            height: 700px;
+
+            top: -150px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(139,124,255,0.15),
+                    rgba(139,124,255,0.035) 45%,
+                    transparent 70%
+                );
+
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 13px;
+
+            border: 1px solid rgba(139,124,255,0.25);
+            border-radius: 999px;
+
+            color: #c8c2ff;
+
+            background: rgba(139,124,255,0.07);
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .badge-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--green);
+
+            box-shadow:
+                0 0 12px rgba(101,223,157,0.9);
+        }
+
+        .hero h1 {
+            margin-top: 28px;
+
+            font-size: clamp(48px, 8vw, 88px);
+            line-height: 0.98;
+
+            letter-spacing: -5px;
+            font-weight: 850;
+        }
+
+        .gradient-text {
+            background:
+                linear-gradient(
+                    110deg,
+                    #ffffff 20%,
+                    #b7afff 58%,
+                    #6ae4df
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .hero-description {
+            max-width: 680px;
+
+            margin: 27px auto 0;
+
+            color: var(--muted);
+
+            font-size: 18px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+
+            margin-top: 34px;
+
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            padding: 14px 21px;
+
+            border-radius: 12px;
+
+            font-size: 14px;
+            font-weight: 750;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button-primary {
+            border: 1px solid rgba(255,255,255,0.1);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #7466ea,
+                    #9a8cff
+                );
+
+            box-shadow:
+                0 14px 40px rgba(139,124,255,0.25);
+        }
+
+        .button-primary:hover {
+            box-shadow:
+                0 18px 55px rgba(139,124,255,0.38);
+        }
+
+        .button-secondary {
+            border: 1px solid var(--border-light);
+
+            background: rgba(255,255,255,0.045);
+        }
+
+        /* =========================
+           ПРЕВЬЮ ПРИЛОЖЕНИЯ
+        ========================= */
+
+        .preview {
+            position: relative;
+            z-index: 2;
+
+            max-width: 1030px;
+
+            margin: 75px auto 0;
+
+            border: 1px solid var(--border);
+            border-radius: 22px;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(20,25,38,0.96),
+                    rgba(9,12,19,0.98)
+                );
+
+            box-shadow:
+                0 40px 120px rgba(0,0,0,0.48),
+                0 0 80px rgba(139,124,255,0.06);
+
+            transform:
+                perspective(1400px)
+                rotateX(2deg);
+
+            transition: transform 0.4s ease;
+        }
+
+        .preview:hover {
+            transform:
+                perspective(1400px)
+                rotateX(0deg)
+                translateY(-4px);
+        }
+
+        .window-bar {
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+
+            padding: 0 17px;
+
+            border-bottom: 1px solid var(--border);
+
+            background: rgba(255,255,255,0.018);
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 7px;
+        }
+
+        .window-dot {
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #4c5360;
+        }
+
+        .window-name {
+            margin-left: 12px;
+
+            color: var(--muted-dark);
+
+            font-size: 12px;
+        }
+
+        .app {
+            display: grid;
+            grid-template-columns: 185px 1fr;
+
+            min-height: 420px;
+        }
+
+        .sidebar {
+            padding: 22px 14px;
+
+            border-right: 1px solid var(--border);
+
+            background: rgba(255,255,255,0.015);
+
+            text-align: left;
+        }
+
+        .sidebar-label {
+            margin: 0 10px 15px;
+
+            color: var(--muted-dark);
+
+            font-size: 9px;
+            font-weight: 800;
+
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-item {
+            padding: 10px 12px;
+
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+        .sidebar-item.active {
+            color: white;
+
+            border: 1px solid rgba(139,124,255,0.14);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(139,124,255,0.16),
+                    rgba(139,124,255,0.035)
+                );
+        }
+
+        .app-main {
+            padding: 25px;
+
+            text-align: left;
+        }
+
+        .app-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 750;
+        }
+
+        .app-subtitle {
+            margin-top: 3px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+        .sync {
+            padding: 7px 10px;
+
+            border: 1px solid rgba(101,223,157,0.15);
+            border-radius: 8px;
+
+            color: var(--green);
+
+            background: rgba(101,223,157,0.055);
+
+            font-size: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 12px;
+
+            margin-bottom: 14px;
+        }
+
+        .stat {
+            padding: 17px;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            background: rgba(255,255,255,0.025);
+        }
+
+        .stat-label {
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+        .stat-value {
+            margin-top: 5px;
+
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .stat-change {
+            margin-top: 3px;
+
+            color: var(--green);
+
+            font-size: 10px;
+        }
+
+        .chart-card {
+            padding: 18px;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            background: rgba(255,255,255,0.025);
+        }
+
+        .chart-title {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .chart-subtitle {
+            color: var(--muted);
+
+            font-size: 10px;
+        }
+
+        .chart {
+            height: 170px;
+
+            margin-top: 15px;
+
+            overflow: hidden;
+
+            border-radius: 8px;
+
+            background:
+                linear-gradient(
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.035) 1px,
+                    transparent 1px
+                );
+
+            background-size: 45px 45px;
+        }
+
+        .chart svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================
+           СЕКЦИИ
+        ========================= */
+
+        section {
+            padding: 110px 0;
+        }
+
+        .section-label {
+            margin-bottom: 12px;
+
+            color: var(--purple-light);
+
+            font-size: 11px;
+            font-weight: 800;
+
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            max-width: 750px;
+
+            font-size: clamp(36px, 5vw, 58px);
+            line-height: 1.04;
+
+            letter-spacing: -3px;
+        }
+
+        .section-description {
+            max-width: 680px;
+
+            margin-top: 18px;
+
+            color: var(--muted);
+
+            font-size: 17px;
+        }
+
+        /* =========================
+           ВОЗМОЖНОСТИ
+        ========================= */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 16px;
+
+            margin-top: 48px;
+        }
+
+        .feature {
+            position: relative;
+
+            min-height: 240px;
+
+            padding: 28px;
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.05),
+                    rgba(255,255,255,0.012)
+                );
+
+            overflow: hidden;
+
+            transition:
+                transform 0.25s ease,
+                border-color 0.25s ease;
+        }
+
+        .feature::before {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            background:
+                radial-gradient(
+                    circle at 20% 0%,
+                    rgba(139,124,255,0.12),
+                    transparent 45%
+                );
+
+            opacity: 0;
+
+            transition: opacity 0.25s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+
+            border-color: var(--border-light);
+        }
+
+        .feature:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            position: relative;
+
+            width: 46px;
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            margin-bottom: 25px;
+
+            border: 1px solid rgba(139,124,255,0.16);
+            border-radius: 13px;
+
+            color: #c2bbff;
+
+            background: rgba(139,124,255,0.08);
+
+            font-size: 20px;
+        }
+
+        .feature h3 {
+            position: relative;
+
+            margin-bottom: 9px;
+
+            font-size: 18px;
+        }
+
+        .feature p {
+            position: relative;
+
+            color: var(--muted);
+
+            font-size: 14px;
+        }
+
+        /* =========================
+           GOOGLE SHEETS
+        ========================= */
+
+        .sheets-section {
+            position: relative;
+        }
+
+        .sheets-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+
+            gap: 55px;
+
+            padding: 55px;
+
+            border: 1px solid var(--border);
+            border-radius: 30px;
+
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(82,221,216,0.08),
+                    transparent 40%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.045),
+                    rgba(255,255,255,0.012)
+                );
+        }
+
+        .sheets-content h2 {
+            font-size: clamp(34px, 4vw, 50px);
+        }
+
+        .sheets-content p {
+            margin-top: 18px;
+
+            color: var(--muted);
+
+            font-size: 15px;
+        }
+
+        .sheets-list {
+            display: flex;
+            flex-direction: column;
+            gap: 13px;
+
+            margin-top: 28px;
+        }
+
+        .sheets-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: #cdd2dc;
+
+            font-size: 14px;
+        }
+
+        .check {
+            width: 23px;
+            height: 23px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 7px;
+
+            color: var(--green);
+
+            background: rgba(101,223,157,0.08);
+
+            font-size: 12px;
+        }
+
+        .sheets-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sheets-card {
+            width: 100%;
+            max-width: 390px;
+
+            padding: 22px;
+
+            border: 1px solid var(--border);
+            border-radius: 18px;
+
+            background: rgba(8,11,18,0.72);
+
+            box-shadow:
+                0 30px 70px rgba(0,0,0,0.25);
+        }
+
+        .sheets-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            padding-bottom: 18px;
+
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sheets-logo {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: rgba(101,223,157,0.08);
+
+            color: var(--green);
+
+            font-weight: 900;
+        }
+
+        .sheets-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sheets-status {
+            margin-top: 2px;
+
+            color: var(--green);
+
+            font-size: 10px;
+        }
+
+        .sheet-row {
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid rgba(255,255,255,0.045);
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+        .sheet-row:first-child {
+            color: var(--muted-dark);
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+
+        /* =========================
+           CTA
+        ========================= */
+
+        .cta {
+            padding: 30px 0 120px;
+        }
+
+        .cta-box {
+            position: relative;
+
+            padding: 80px 40px;
+
+            overflow: hidden;
+
+            border: 1px solid var(--border-light);
+            border-radius: 30px;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(139,124,255,0.18),
+                    transparent 55%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,0.05),
+                    rgba(255,255,255,0.012)
+                );
+        }
+
+        .cta-box h2 {
+            margin: 0 auto;
+
+            font-size: clamp(36px, 5vw, 58px);
+        }
+
+        .cta-box p {
+            max-width: 580px;
+
+            margin: 18px auto 0;
+
+            color: var(--muted);
+        }
+
+        .cta .button {
+            margin-top: 30px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            border-top: 1px solid var(--border);
+
+            padding: 35px 0 40px;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+        }
+
+        .footer-brand {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 22px;
+        }
+
+        .footer-links a:hover {
+            color: var(--text);
+        }
+
+        /* =========================
+           АДАПТИВ
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            .nav-links a:not(.nav-button) {
+                display: none;
+            }
+
+            .hero {
+                padding-top: 135px;
+            }
+
+            .hero h1 {
+                letter-spacing: -3px;
+            }
+
+            .app {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .sheets-box {
+                grid-template-columns: 1fr;
+
+                padding: 35px;
+
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: min(100% - 28px, 1160px);
+            }
+
+            .nav {
+                height: 66px;
+            }
+
+            .logo {
+                font-size: 13px;
+            }
+
+            .logo-icon {
+                width: 34px;
+                height: 34px;
+            }
+
+            .nav-button {
+                padding: 8px 12px;
+            }
+
+            .hero {
+                padding-top: 115px;
+                padding-bottom: 70px;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+                letter-spacing: -2.5px;
+            }
+
+            .hero-description {
+                font-size: 16px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .preview {
+                margin-top: 50px;
+
+                transform: none;
+            }
+
+            .preview:hover {
+                transform: none;
+            }
+
+            .app-main {
+                padding: 17px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat {
+                padding: 14px;
+            }
+
+            .chart {
+                height: 140px;
+            }
+
+            section {
+                padding: 80px 0;
+            }
+
+            h2 {
+                letter-spacing: -2px;
+            }
+
+            .sheets-box {
+                padding: 25px;
+                border-radius: 22px;
+            }
+
+            .cta {
+                padding-bottom: 80px;
+            }
+
+            .cta-box {
+                padding: 55px 22px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+            .footer-links {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <!-- NAVIGATION -->
-  <nav>
-    <div class="container nav-inner">
-      <a href="#" class="logo">
-        <div class="logo-mark">M</div>
-        <span>Majestic Nickel Tracker</span>
-      </a>
+<!-- =========================
+     НАВИГАЦИЯ
+========================= -->
 
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#sync">Google Sheets</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="terms.html">Terms</a>
-        <a href="#download" class="nav-button">Download</a>
-      </div>
+<header class="navbar">
+    <div class="container nav">
+
+        <a href="#" class="logo">
+            <span class="logo-icon">Ni</span>
+            <span>Majestic Nickel Tracker</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="#features">Возможности</a>
+            <a href="#sheets">Google Таблицы</a>
+            <a href="#download" class="nav-button">Скачать</a>
+        </nav>
+
     </div>
-  </nav>
+</header>
 
 
-  <!-- HERO -->
-  <main>
+<!-- =========================
+     HERO
+========================= -->
 
-    <section class="hero">
-      <div class="container">
-        <div class="hero-content">
+<main>
 
-          <div class="badge fade-up">
+<section class="hero">
+
+    <div class="hero-glow"></div>
+
+    <div class="container hero-content">
+
+        <div class="badge">
             <span class="badge-dot"></span>
-            Desktop analytics for nickel mining
-          </div>
+            Настольное приложение
+        </div>
 
-          <h1 class="fade-up delay-1">
-            <span class="gradient-text">Track.</span>
-            Analyze.
+        <h1>
+            Статистика добычи никеля
             <br>
-            Understand.
-          </h1>
+            <span class="gradient-text">под контролем.</span>
+        </h1>
 
-          <p class="fade-up delay-2">
-            Majestic Nickel Tracker is a desktop application for
-            tracking nickel mining statistics and keeping your data
-            organized and synchronized.
-          </p>
+        <p class="hero-description">
+            Majestic Nickel Tracker помогает отслеживать статистику
+            добычи никеля, анализировать данные и синхронизировать
+            информацию с Google Таблицами.
+        </p>
 
-          <div class="hero-buttons fade-up delay-3">
-            <a href="#download" class="button button-primary">
-              Download application
+        <div class="hero-buttons">
+
+            <!-- ЗАМЕНИ # НА ССЫЛКУ НА СКАЧИВАНИЕ -->
+            <a href="#" class="button button-primary">
+                ↓ &nbsp; Скачать приложение
             </a>
 
             <a href="#features" class="button button-secondary">
-              Explore features
+                Узнать больше
             </a>
-          </div>
 
-          <!-- APP PREVIEW -->
-          <div class="dashboard fade-up delay-3">
-            <div class="dashboard-window">
+        </div>
 
-              <div class="window-bar">
-                <span class="window-dot"></span>
-                <span class="window-dot"></span>
-                <span class="window-dot"></span>
-                <span class="window-title">
-                  Majestic Nickel Tracker
+
+        <!-- ПРЕВЬЮ ПРИЛОЖЕНИЯ -->
+
+        <div class="preview">
+
+            <div class="window-bar">
+
+                <div class="window-dots">
+                    <span class="window-dot"></span>
+                    <span class="window-dot"></span>
+                    <span class="window-dot"></span>
+                </div>
+
+                <span class="window-name">
+                    Majestic Nickel Tracker
                 </span>
-              </div>
 
-              <div class="dashboard-content">
-
-                <div class="stats">
-
-                  <div class="stat-card">
-                    <div class="stat-label">
-                      Nickel production
-                    </div>
-                    <div class="stat-value">
-                      24,860 t
-                    </div>
-                    <div class="stat-change">
-                      +8.4% this year
-                    </div>
-                  </div>
-
-                  <div class="stat-card">
-                    <div class="stat-label">
-                      Active mines
-                    </div>
-                    <div class="stat-value">
-                      18
-                    </div>
-                    <div class="stat-change">
-                      +2 this quarter
-                    </div>
-                  </div>
-
-                  <div class="stat-card">
-                    <div class="stat-label">
-                      Last synchronization
-                    </div>
-                    <div class="stat-value">
-                      Just now
-                    </div>
-                    <div class="stat-change">
-                      ● Connected
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="chart-card">
-
-                  <div class="chart-title">
-                    Production overview
-                  </div>
-
-                  <div class="chart-subtitle">
-                    Nickel production · 2025–2026
-                  </div>
-
-                  <div class="chart">
-
-                    <svg
-                      viewBox="0 0 700 220"
-                      preserveAspectRatio="none"
-                      aria-label="Production chart"
-                    >
-
-                      <defs>
-                        <linearGradient
-                          id="chartGradient"
-                          x1="0%"
-                          y1="0%"
-                          x2="100%"
-                          y2="0%"
-                        >
-                          <stop
-                            offset="0%"
-                            stop-color="#7c5cff"
-                          />
-                          <stop
-                            offset="100%"
-                            stop-color="#26d0ce"
-                          />
-                        </linearGradient>
-                      </defs>
-
-                      <path
-                        class="chart-line"
-                        d="
-                          M0 175
-                          C50 160, 70 165, 110 145
-                          C150 125, 170 150, 210 120
-                          C250 90, 285 125, 320 100
-                          C355 75, 380 95, 420 70
-                          C460 48, 490 78, 525 55
-                          C560 32, 590 55, 620 40
-                          C650 27, 675 35, 700 18
-                        "
-                      />
-
-                    </svg>
-
-                  </div>
-                </div>
-
-              </div>
             </div>
-          </div>
+
+
+            <div class="app">
+
+                <aside class="sidebar">
+
+                    <div class="sidebar-label">
+                        Разделы
+                    </div>
+
+                    <div class="sidebar-item active">
+                        Обзор
+                    </div>
+
+                    <div class="sidebar-item">
+                        Статистика
+                    </div>
+
+                    <div class="sidebar-item">
+                        Месторождения
+                    </div>
+
+                    <div class="sidebar-item">
+                        История
+                    </div>
+
+                    <div class="sidebar-item">
+                        Настройки
+                    </div>
+
+                </aside>
+
+
+                <div class="app-main">
+
+                    <div class="app-top">
+
+                        <div>
+                            <div class="app-title">
+                                Обзор статистики
+                            </div>
+
+                            <div class="app-subtitle">
+                                Последнее обновление данных
+                            </div>
+                        </div>
+
+                        <div class="sync">
+                            ● Синхронизировано
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats">
+
+                        <div class="stat">
+
+                            <div class="stat-label">
+                                Добыча
+                            </div>
+
+                            <div class="stat-value">
+                                24 860 т
+                            </div>
+
+                            <div class="stat-change">
+                                ↑ +8,4%
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <div class="stat-label">
+                                Объекты
+                            </div>
+
+                            <div class="stat-value">
+                                18
+                            </div>
+
+                            <div class="stat-change">
+                                Активных
+                            </div>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <div class="stat-label">
+                                Данные
+                            </div>
+
+                            <div class="stat-value">
+                                99,8%
+                            </div>
+
+                            <div class="stat-change">
+                                Актуальность
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="chart-card">
+
+                        <div class="chart-title">
+                            Динамика добычи
+                        </div>
+
+                        <div class="chart-subtitle">
+                            Изменение показателей за период
+                        </div>
+
+                        <div class="chart">
+
+                            <svg
+                                viewBox="0 0 800 220"
+                                preserveAspectRatio="none"
+                            >
+
+                                <defs>
+
+                                    <linearGradient
+                                        id="areaGradient"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="0%"
+                                            stop-color="#8b7cff"
+                                            stop-opacity="0.28"
+                                        />
+
+                                        <stop
+                                            offset="100%"
+                                            stop-color="#8b7cff"
+                                            stop-opacity="0"
+                                        />
+                                    </linearGradient>
+
+                                    <filter id="glow">
+                                        <feGaussianBlur
+                                            stdDeviation="5"
+                                            result="coloredBlur"
+                                        />
+
+                                        <feMerge>
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+
+                                </defs>
+
+
+                                <path
+                                    d="
+                                    M0 180
+                                    L70 165
+                                    L140 170
+                                    L210 130
+                                    L280 145
+                                    L350 105
+                                    L420 120
+                                    L490 80
+                                    L560 95
+                                    L630 58
+                                    L700 70
+                                    L800 30
+                                    L800 220
+                                    L0 220
+                                    Z
+                                    "
+                                    fill="url(#areaGradient)"
+                                />
+
+
+                                <path
+                                    d="
+                                    M0 180
+                                    L70 165
+                                    L140 170
+                                    L210 130
+                                    L280 145
+                                    L350 105
+                                    L420 120
+                                    L490 80
+                                    L560 95
+                                    L630 58
+                                    L700 70
+                                    L800 30
+                                    "
+                                    fill="none"
+                                    stroke="#9c90ff"
+                                    stroke-width="4"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    filter="url(#glow)"
+                                />
+
+                            </svg>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
         </div>
-      </div>
-    </section>
+
+    </div>
+
+</section>
 
 
-    <!-- FEATURES -->
-    <section id="features">
+<!-- =========================
+     ВОЗМОЖНОСТИ
+========================= -->
 
-      <div class="container">
+<section id="features">
 
-        <div class="section-heading">
-          <div class="section-label">
-            Built for statistics
-          </div>
+    <div class="container">
 
-          <h2>
-            Everything you need
-            to keep track.
-          </h2>
-
-          <p>
-            A focused desktop experience for organizing,
-            analyzing and synchronizing nickel mining data.
-          </p>
+        <div class="section-label">
+            Возможности
         </div>
+
+        <h2>
+            Всё необходимое
+            <br>
+            для работы с данными.
+        </h2>
+
+        <p class="section-description">
+            Приложение создано для удобного мониторинга,
+            анализа и хранения статистики добычи никеля.
+        </p>
 
 
         <div class="features">
 
-          <article class="feature">
-            <div class="feature-icon">📊</div>
+            <article class="feature">
 
-            <h3>
-              Mining Statistics
-            </h3>
+                <div class="feature-icon">
+                    ◈
+                </div>
 
-            <p>
-              Track production and other important mining
-              statistics in one organized workspace.
-            </p>
-          </article>
+                <h3>
+                    Отслеживание статистики
+                </h3>
 
+                <p>
+                    Просматривайте ключевые показатели добычи
+                    и следите за изменениями в удобном интерфейсе.
+                </p>
 
-          <article class="feature">
-            <div class="feature-icon">☁️</div>
-
-            <h3>
-              Google Sheets Sync
-            </h3>
-
-            <p>
-              Synchronize statistics with a Google Spreadsheet
-              owned and controlled by you.
-            </p>
-          </article>
+            </article>
 
 
-          <article class="feature">
-            <div class="feature-icon">⚡</div>
+            <article class="feature">
 
-            <h3>
-              Simple & Focused
-            </h3>
+                <div class="feature-icon">
+                    ↗
+                </div>
 
-            <p>
-              Designed to keep the important information
-              accessible without unnecessary complexity.
-            </p>
-          </article>
+                <h3>
+                    Анализ данных
+                </h3>
 
-        </div>
+                <p>
+                    Получайте наглядное представление о динамике
+                    показателей и изменениях за выбранный период.
+                </p>
 
-      </div>
-    </section>
-
-
-    <!-- GOOGLE SHEETS -->
-    <section class="sync" id="sync">
-
-      <div class="container">
-
-        <div class="sync-box">
-
-          <div class="sync-text">
-
-            <div class="section-label">
-              Cloud synchronization
-            </div>
-
-            <h2>
-              Your statistics,
-              your spreadsheet.
-            </h2>
-
-            <p>
-              Majestic Nickel Tracker can synchronize
-              statistics with a Google Spreadsheet owned
-              by the user, giving you a convenient way
-              to keep your data available and organized.
-            </p>
-
-            <div style="margin-top: 25px;">
-              <a
-                href="#download"
-                class="button button-secondary"
-              >
-                Learn more
-              </a>
-            </div>
-
-          </div>
+            </article>
 
 
-          <div class="sync-visual">
+            <article class="feature">
 
-            <div class="sync-card">
-              <div style="font-size: 38px;">💻</div>
-              <strong>Majestic Tracker</strong>
-              <span style="color: #8f9bad; font-size: 12px;">
-                Mining statistics
-              </span>
-            </div>
+                <div class="feature-icon">
+                    ⇄
+                </div>
 
-            <div class="sync-arrow">
-              →
-            </div>
+                <h3>
+                    Синхронизация
+                </h3>
 
-            <div class="sync-card">
-              <div style="font-size: 38px;">📊</div>
-              <strong>Google Sheets</strong>
-              <span style="color: #8f9bad; font-size: 12px;">
-                Your data
-              </span>
-            </div>
+                <p>
+                    Синхронизируйте данные с Google Таблицами
+                    и работайте с информацией на разных устройствах.
+                </p>
 
-          </div>
+            </article>
 
         </div>
-
-      </div>
-    </section>
-
-
-    <!-- DOWNLOAD CTA -->
-    <section class="cta" id="download">
-
-      <div class="container">
-
-        <div class="section-label">
-          Majestic Nickel Tracker
-        </div>
-
-        <h2>
-          Ready to track your data?
-        </h2>
-
-        <p>
-          Download Majestic Nickel Tracker and keep
-          your nickel mining statistics organized.
-        </p>
-
-        <!--
-          ЗАМЕНИ href НИЖЕ на реальную ссылку
-          на установщик приложения.
-        -->
-
-        <a
-          href="#"
-          class="button button-primary"
-          onclick="showDownloadMessage(event)"
-        >
-          Download application
-        </a>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- FOOTER -->
-  <footer>
-
-    <div class="container footer-inner">
-
-      <div>
-        © <span id="year"></span>
-        Majestic Nickel Tracker
-      </div>
-
-      <div class="footer-links">
-        <a href="privacy.html">
-          Privacy Policy
-        </a>
-
-        <a href="terms.html">
-          Terms of Service
-        </a>
-      </div>
 
     </div>
 
-  </footer>
+</section>
 
 
-  <script>
+<!-- =========================
+     GOOGLE SHEETS
+========================= -->
+
+<section id="sheets" class="sheets-section">
+
+    <div class="container">
+
+        <div class="sheets-box">
+
+            <div class="sheets-content">
+
+                <div class="section-label">
+                    Google Таблицы
+                </div>
+
+                <h2>
+                    Ваши данные.
+                    <br>
+                    Ваша таблица.
+                </h2>
+
+                <p>
+                    Majestic Nickel Tracker может синхронизировать
+                    статистику с Google Таблицами, чтобы ваши данные
+                    оставались доступными и удобными для дальнейшей работы.
+                </p>
+
+
+                <div class="sheets-list">
+
+                    <div class="sheets-item">
+                        <span class="check">✓</span>
+                        Синхронизация данных
+                    </div>
+
+                    <div class="sheets-item">
+                        <span class="check">✓</span>
+                        Доступ к собственной таблице
+                    </div>
+
+                    <div class="sheets-item">
+                        <span class="check">✓</span>
+                        Удобное хранение статистики
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="sheets-visual">
+
+                <div class="sheets-card">
+
+                    <div class="sheets-header">
+
+                        <div class="sheets-logo">
+                            ✓
+                        </div>
+
+                        <div>
+                            <div class="sheets-name">
+                                Google Таблица
+                            </div>
+
+                            <div class="sheets-status">
+                                Синхронизация активна
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="sheet-row">
+                        <span>Показатель</span>
+                        <span>Значение</span>
+                        <span>Изменение</span>
+                    </div>
+
+                    <div class="sheet-row">
+                        <span>Добыча</span>
+                        <span>24 860</span>
+                        <span>+8,4%</span>
+                    </div>
+
+                    <div class="sheet-row">
+                        <span>Объекты</span>
+                        <span>18</span>
+                        <span>+2</span>
+                    </div>
+
+                    <div class="sheet-row">
+                        <span>Период</span>
+                        <span>2026</span>
+                        <span>—</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     DOWNLOAD
+========================= -->
+
+<section id="download" class="cta">
+
+    <div class="container">
+
+        <div class="cta-box">
+
+            <h2>
+                Готовы начать?
+            </h2>
+
+            <p>
+                Скачайте Majestic Nickel Tracker и держите
+                статистику добычи никеля под контролем.
+            </p>
+
+            <!-- ЗАМЕНИ # НА ССЫЛКУ НА СКАЧИВАНИЕ -->
+            <a href="#" class="button button-primary">
+                ↓ &nbsp; Скачать Majestic Nickel Tracker
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer>
+
+    <div class="container footer-inner">
+
+        <div>
+            <span class="footer-brand">
+                Majestic Nickel Tracker
+            </span>
+
+            <span>
+                &nbsp; © <span id="year"></span>
+            </span>
+        </div>
+
+
+        <div class="footer-links">
+
+            <a href="privacy.html">
+                Политика конфиденциальности
+            </a>
+
+            <a href="terms.html">
+                Условия использования
+            </a>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script>
+    // Текущий год в подвале
     document.getElementById("year").textContent =
-      new Date().getFullYear();
-
-    function showDownloadMessage(event) {
-      event.preventDefault();
-
-      alert(
-        "The download link has not been configured yet."
-      );
-    }
-  </script>
+        new Date().getFullYear();
+</script>
 
 </body>
 </html>
