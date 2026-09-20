@@ -1,31 +1,1052 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Majestic Nickel Tracker</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Majestic Nickel Tracker</title>
+  <meta
+    name="description"
+    content="Majestic Nickel Tracker — a desktop application for tracking nickel mining statistics and synchronizing data with Google Sheets."
+  >
+
+  <meta name="theme-color" content="#080b12">
+
+  <style>
+    :root {
+      --bg: #080b12;
+      --bg-soft: #0d111a;
+      --card: rgba(18, 23, 34, 0.72);
+      --card-solid: #121722;
+      --border: rgba(255, 255, 255, 0.09);
+      --text: #f4f7fb;
+      --muted: #9aa6b8;
+      --accent: #7c5cff;
+      --accent-2: #26d0ce;
+      --green: #55d68a;
+      --shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 80% 10%, rgba(124, 92, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 10% 30%, rgba(38, 208, 206, 0.08), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      background: rgba(8, 11, 18, 0.72);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-inner {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+    }
+
+    .logo-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 30px rgba(124, 92, 255, 0.3);
+      font-size: 15px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-button {
+      padding: 10px 17px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text) !important;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* HERO */
+
+    .hero {
+      min-height: 820px;
+      padding-top: 170px;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      left: 50%;
+      top: 50px;
+      transform: translateX(-50%);
+      background: radial-gradient(
+        circle,
+        rgba(124, 92, 255, 0.12),
+        transparent 65%
+      );
+      pointer-events: none;
+    }
+
+    .hero-content {
+      text-align: center;
+      max-width: 850px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(124, 92, 255, 0.3);
+      background: rgba(124, 92, 255, 0.08);
+      border-radius: 999px;
+      color: #c8bdff;
+      font-size: 13px;
+      margin-bottom: 25px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--green);
+    }
+
+    h1 {
+      font-size: clamp(48px, 8vw, 88px);
+      line-height: 0.98;
+      letter-spacing: -4px;
+      margin-bottom: 27px;
+      font-weight: 850;
+    }
+
+    .gradient-text {
+      background: linear-gradient(
+        120deg,
+        #ffffff 20%,
+        #b9b0ff 55%,
+        #65e4e0
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 35px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 14px;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      background: linear-gradient(135deg, var(--accent), #9b78ff);
+      box-shadow: 0 12px 35px rgba(124, 92, 255, 0.25);
+    }
+
+    .button-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    /* DASHBOARD PREVIEW */
+
+    .dashboard {
+      margin-top: 80px;
+      position: relative;
+    }
+
+    .dashboard-window {
+      max-width: 950px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(13, 17, 26, 0.9);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transform: perspective(1200px) rotateX(2deg);
+    }
+
+    .window-bar {
+      height: 46px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 7px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .window-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #515967;
+    }
+
+    .window-title {
+      margin-left: 10px;
+      color: #778295;
+      font-size: 12px;
+    }
+
+    .dashboard-content {
+      padding: 25px;
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 18px;
+    }
+
+    .stats {
+      display: grid;
+      gap: 14px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .stat-change {
+      color: var(--green);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .chart-card {
+      min-height: 285px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 20px;
+      text-align: left;
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .chart-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .chart {
+      height: 185px;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      background:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 45px 45px;
+    }
+
+    .chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke: url(#chartGradient);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* FEATURES */
+
+    section {
+      padding: 110px 0;
+    }
+
+    .section-heading {
+      max-width: 650px;
+      margin-bottom: 50px;
+    }
+
+    .section-label {
+      color: #9c8aff;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.05;
+      letter-spacing: -2px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      margin-top: 17px;
+      font-size: 17px;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature {
+      padding: 28px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.055),
+        rgba(255,255,255,0.018)
+      );
+      transition:
+        transform 0.25s ease,
+        border-color 0.25s ease;
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      border-color: rgba(124, 92, 255, 0.4);
+    }
+
+    .feature-icon {
+      width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: rgba(124, 92, 255, 0.12);
+      margin-bottom: 22px;
+      font-size: 20px;
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      margin-bottom: 9px;
+    }
+
+    .feature p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* SYNC */
+
+    .sync {
+      padding-top: 40px;
+    }
+
+    .sync-box {
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background:
+        radial-gradient(
+          circle at 85% 20%,
+          rgba(38, 208, 206, 0.12),
+          transparent 30%
+        ),
+        linear-gradient(135deg, #101622, #0c1018);
+      padding: 65px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .sync-text p {
+      color: var(--muted);
+      margin-top: 18px;
+      max-width: 480px;
+    }
+
+    .sync-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+      position: relative;
+    }
+
+    .sync-card {
+      padding: 25px;
+      width: 230px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    }
+
+    .sync-card strong {
+      display: block;
+      margin-top: 10px;
+    }
+
+    .sync-arrow {
+      margin: 0 18px;
+      color: var(--accent-2);
+      font-size: 25px;
+    }
+
+    /* CTA */
+
+    .cta {
+      text-align: center;
+      padding: 130px 0;
+    }
+
+    .cta p {
+      color: var(--muted);
+      max-width: 550px;
+      margin: 18px auto 30px;
+    }
+
+    /* FOOTER */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 35px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    /* ANIMATION */
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s ease forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.1s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.3s;
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 800px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 135px;
+      }
+
+      h1 {
+        letter-spacing: -2.5px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      .dashboard-content {
+        grid-template-columns: 1fr;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .sync-box {
+        grid-template-columns: 1fr;
+        padding: 35px 25px;
+        gap: 20px;
+      }
+
+      .sync-visual {
+        min-height: 170px;
+      }
+
+      section {
+        padding: 80px 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: min(100% - 28px, 1120px);
+      }
+
+      .logo span {
+        font-size: 14px;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .dashboard {
+        margin-top: 55px;
+      }
+
+      .dashboard-window {
+        border-radius: 15px;
+      }
+
+      .dashboard-content {
+        padding: 13px;
+      }
+
+      .chart-card {
+        min-height: 240px;
+      }
+
+      .chart {
+        height: 145px;
+      }
+
+      .sync-arrow {
+        transform: rotate(90deg);
+        margin: 12px 0;
+      }
+
+      .sync-visual {
+        flex-direction: column;
+      }
+
+      .sync-card {
+        width: 210px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <h1>Majestic Nickel Tracker</h1>
 
-    <p>
-        Majestic Nickel Tracker is a desktop application
-        for tracking nickel mining statistics.
-    </p>
+  <!-- NAVIGATION -->
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-mark">M</div>
+        <span>Majestic Nickel Tracker</span>
+      </a>
 
-    <p>
-        The application can synchronize statistics
-        with a Google Spreadsheet owned by the user.
-    </p>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#sync">Google Sheets</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="#download" class="nav-button">Download</a>
+      </div>
+    </div>
+  </nav>
 
-    <h2>Legal</h2>
 
-    <p>
-        <a href="privacy.html">Privacy Policy</a>
-    </p>
+  <!-- HERO -->
+  <main>
 
-    <p>
-        <a href="terms.html">Terms of Service</a>
-    </p>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+
+          <div class="badge fade-up">
+            <span class="badge-dot"></span>
+            Desktop analytics for nickel mining
+          </div>
+
+          <h1 class="fade-up delay-1">
+            <span class="gradient-text">Track.</span>
+            Analyze.
+            <br>
+            Understand.
+          </h1>
+
+          <p class="fade-up delay-2">
+            Majestic Nickel Tracker is a desktop application for
+            tracking nickel mining statistics and keeping your data
+            organized and synchronized.
+          </p>
+
+          <div class="hero-buttons fade-up delay-3">
+            <a href="#download" class="button button-primary">
+              Download application
+            </a>
+
+            <a href="#features" class="button button-secondary">
+              Explore features
+            </a>
+          </div>
+
+          <!-- APP PREVIEW -->
+          <div class="dashboard fade-up delay-3">
+            <div class="dashboard-window">
+
+              <div class="window-bar">
+                <span class="window-dot"></span>
+                <span class="window-dot"></span>
+                <span class="window-dot"></span>
+                <span class="window-title">
+                  Majestic Nickel Tracker
+                </span>
+              </div>
+
+              <div class="dashboard-content">
+
+                <div class="stats">
+
+                  <div class="stat-card">
+                    <div class="stat-label">
+                      Nickel production
+                    </div>
+                    <div class="stat-value">
+                      24,860 t
+                    </div>
+                    <div class="stat-change">
+                      +8.4% this year
+                    </div>
+                  </div>
+
+                  <div class="stat-card">
+                    <div class="stat-label">
+                      Active mines
+                    </div>
+                    <div class="stat-value">
+                      18
+                    </div>
+                    <div class="stat-change">
+                      +2 this quarter
+                    </div>
+                  </div>
+
+                  <div class="stat-card">
+                    <div class="stat-label">
+                      Last synchronization
+                    </div>
+                    <div class="stat-value">
+                      Just now
+                    </div>
+                    <div class="stat-change">
+                      ● Connected
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="chart-card">
+
+                  <div class="chart-title">
+                    Production overview
+                  </div>
+
+                  <div class="chart-subtitle">
+                    Nickel production · 2025–2026
+                  </div>
+
+                  <div class="chart">
+
+                    <svg
+                      viewBox="0 0 700 220"
+                      preserveAspectRatio="none"
+                      aria-label="Production chart"
+                    >
+
+                      <defs>
+                        <linearGradient
+                          id="chartGradient"
+                          x1="0%"
+                          y1="0%"
+                          x2="100%"
+                          y2="0%"
+                        >
+                          <stop
+                            offset="0%"
+                            stop-color="#7c5cff"
+                          />
+                          <stop
+                            offset="100%"
+                            stop-color="#26d0ce"
+                          />
+                        </linearGradient>
+                      </defs>
+
+                      <path
+                        class="chart-line"
+                        d="
+                          M0 175
+                          C50 160, 70 165, 110 145
+                          C150 125, 170 150, 210 120
+                          C250 90, 285 125, 320 100
+                          C355 75, 380 95, 420 70
+                          C460 48, 490 78, 525 55
+                          C560 32, 590 55, 620 40
+                          C650 27, 675 35, 700 18
+                        "
+                      />
+
+                    </svg>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- FEATURES -->
+    <section id="features">
+
+      <div class="container">
+
+        <div class="section-heading">
+          <div class="section-label">
+            Built for statistics
+          </div>
+
+          <h2>
+            Everything you need
+            to keep track.
+          </h2>
+
+          <p>
+            A focused desktop experience for organizing,
+            analyzing and synchronizing nickel mining data.
+          </p>
+        </div>
+
+
+        <div class="features">
+
+          <article class="feature">
+            <div class="feature-icon">📊</div>
+
+            <h3>
+              Mining Statistics
+            </h3>
+
+            <p>
+              Track production and other important mining
+              statistics in one organized workspace.
+            </p>
+          </article>
+
+
+          <article class="feature">
+            <div class="feature-icon">☁️</div>
+
+            <h3>
+              Google Sheets Sync
+            </h3>
+
+            <p>
+              Synchronize statistics with a Google Spreadsheet
+              owned and controlled by you.
+            </p>
+          </article>
+
+
+          <article class="feature">
+            <div class="feature-icon">⚡</div>
+
+            <h3>
+              Simple & Focused
+            </h3>
+
+            <p>
+              Designed to keep the important information
+              accessible without unnecessary complexity.
+            </p>
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- GOOGLE SHEETS -->
+    <section class="sync" id="sync">
+
+      <div class="container">
+
+        <div class="sync-box">
+
+          <div class="sync-text">
+
+            <div class="section-label">
+              Cloud synchronization
+            </div>
+
+            <h2>
+              Your statistics,
+              your spreadsheet.
+            </h2>
+
+            <p>
+              Majestic Nickel Tracker can synchronize
+              statistics with a Google Spreadsheet owned
+              by the user, giving you a convenient way
+              to keep your data available and organized.
+            </p>
+
+            <div style="margin-top: 25px;">
+              <a
+                href="#download"
+                class="button button-secondary"
+              >
+                Learn more
+              </a>
+            </div>
+
+          </div>
+
+
+          <div class="sync-visual">
+
+            <div class="sync-card">
+              <div style="font-size: 38px;">💻</div>
+              <strong>Majestic Tracker</strong>
+              <span style="color: #8f9bad; font-size: 12px;">
+                Mining statistics
+              </span>
+            </div>
+
+            <div class="sync-arrow">
+              →
+            </div>
+
+            <div class="sync-card">
+              <div style="font-size: 38px;">📊</div>
+              <strong>Google Sheets</strong>
+              <span style="color: #8f9bad; font-size: 12px;">
+                Your data
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- DOWNLOAD CTA -->
+    <section class="cta" id="download">
+
+      <div class="container">
+
+        <div class="section-label">
+          Majestic Nickel Tracker
+        </div>
+
+        <h2>
+          Ready to track your data?
+        </h2>
+
+        <p>
+          Download Majestic Nickel Tracker and keep
+          your nickel mining statistics organized.
+        </p>
+
+        <!--
+          ЗАМЕНИ href НИЖЕ на реальную ссылку
+          на установщик приложения.
+        -->
+
+        <a
+          href="#"
+          class="button button-primary"
+          onclick="showDownloadMessage(event)"
+        >
+          Download application
+        </a>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- FOOTER -->
+  <footer>
+
+    <div class="container footer-inner">
+
+      <div>
+        © <span id="year"></span>
+        Majestic Nickel Tracker
+      </div>
+
+      <div class="footer-links">
+        <a href="privacy.html">
+          Privacy Policy
+        </a>
+
+        <a href="terms.html">
+          Terms of Service
+        </a>
+      </div>
+
+    </div>
+
+  </footer>
+
+
+  <script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
+
+    function showDownloadMessage(event) {
+      event.preventDefault();
+
+      alert(
+        "The download link has not been configured yet."
+      );
+    }
+  </script>
+
 </body>
 </html>
